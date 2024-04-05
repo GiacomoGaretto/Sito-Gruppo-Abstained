@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg" href="immagini/iconcina sito.svg">
+    <title>Gruppo Abstained</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
+    
+<script src="https://kit.fontawesome.com/b8bd567610.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.14.0/css/all.css" integrity="sha384-HzLeBuhoNPvSl5KYnjx0BT+WB0QEEqLprO+NBkkk5gbc67FTaL7XIGa2w1L0Xbgc" crossorigin="anonymous">
+
+</head>
+<body>
+    <div id="circle1" class="circle" style="background-color: rgb(255, 255, 255); opacity: 1;"></div>
+    <div id="circle2" class="circle" style="background-color: rgb(255, 255, 255); opacity: 0.8;"></div>
+    <div id="circle3" class="circle" style="background-color: rgb(255, 255, 255); opacity: 0.5;"></div>
+    
+    <script>
+      const circles = [
+        document.getElementById("circle1"),
+        document.getElementById("circle2"),
+        document.getElementById("circle3"),
+      ];
+      let delay = 0;
+      
+      document.addEventListener("mousemove", (event) => {
+        circles.forEach((circle, index) => {
+          setTimeout(() => {
+            circle.style.left = `${event.clientX}px`;
+            circle.style.top = `${event.clientY}px`;
+          }, delay);
+          delay += 100;
+        });
+        delay = 0;
+      });
+
+      document.addEventListener("mouseover", (event) => {
+        if (event.target.matches("a, button")) {
+          circles.forEach((circle) => {
+            circle.style.display = "none";
+          });
+        }
+      });
+
+      document.addEventListener("mouseout", (event) => {
+        circles.forEach((circle) => {
+          circle.style.display = "block";
+        });
+      });
+      
+    </script>
+
+    <div id="header">
+        <div class="container">
+            <nav>
+                
+                <ul id="sidemenu">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About us</a></li>
+                    <li><a href="project.html">Our project</a></li>
+                    <div class="xbutton" onclick="closemenu()"></div>
+                </ul>
+                <div class="burghermenu" onclick="openmenu()"></div>  
+            </nav>
+            <div class="header-text">
+                <p>Communication Designers</p>
+                <h1>Hi we are group ABSTAINED <br> <span>Welcome on our website</span></h1>
+            </div>
+        </div>
+    </div>
+
+
+<script>
+  var tablinks = document.getElementsByClassName("tab-links");
+  var tabcontents = document.getElementsByClassName("tab-contents");
+
+  var direction = 1;
+
+  function opentab(tabname){
+    for(tablink of tablinks){
+      tablink.classList.remove("active-link");
+    }
+    for(tabcontent of tabcontents){
+      tabcontent.classList.remove("active-tab");
+    }
+    event.currentTarget.classList.add("active-link");
+    document.getElementById(tabname).classList.add("active-tab");
+
+    var image = document.getElementById("daruotare");
+    var currentRotation = image.style.transform.match(/\d+/);
+    currentRotation = currentRotation ? parseInt(currentRotation[0]) : 0;
+    image.style.transform = "rotate(" + (currentRotation + (10 * direction)) + "deg)";
+    direction *= -1;
+    
+  }
+</script>
+
+<script>
+  var sidemenu = document.getElementById("sidemenu");
+
+  function openmenu(){
+    sidemenu.style.right = "0";
+  }
+  function closemenu(){
+    sidemenu.style.right = "-40%";
+  }
+</script>
+
+
+</body>
+</html>
