@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg" href="immagini/iconcina sito.svg">
+    <title>Giacomo Garetto</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/b8bd567610.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.14.0/css/all.css" integrity="sha384-HzLeBuhoNPvSl5KYnjx0BT+WB0QEEqLprO+NBkkk5gbc67FTaL7XIGa2w1L0Xbgc" crossorigin="anonymous">
+    <script>
+        function openmenu() {
+            document.getElementById("sidemenu").style.width = "250px";
+        }
+
+        function closemenu() {
+            document.getElementById("sidemenu").style.width = "0";
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const points = document.querySelectorAll(".point");
+
+            function adjustOpacity() {
+                const windowHeight = window.innerHeight;
+                const scrollPosition = window.scrollY;
+
+                points.forEach(function(point) {
+                    const rect = point.getBoundingClientRect();
+                    const pointTop = rect.top;
+                    const pointBottom = rect.bottom;
+
+                    if (pointTop < windowHeight / 4 && pointBottom > windowHeight / 4) {
+                        point.style.opacity = 1;
+                    } else {
+                        point.style.opacity = 0.2;
+                    }
+                });
+            }
+
+            window.addEventListener("scroll", adjustOpacity);
+            window.addEventListener("resize", adjustOpacity);
+
+            adjustOpacity(); // Call the function once on page load
+        });
+    </script>
+</head>
+<body>
+    <nav >
+        <ul id="sidemenu">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About us</a></li>
+            <li><a href="project.html">Our project</a></li>
+            <li><a href="hp1.html">Harry Potter</a></li>
+            <li><a href="animale.html">Cow</a></li>
+            <li class="xbutton" onclick="closemenu()"></li>
+        </ul>
+        <div class="burghermenu" onclick="openmenu()"></div>  
+    </nav>
+   
+    <div class="main-content">
+        <div id="point1" class="point">
+            <h3>The Boy Who Lived</h3>
+            <img src="immagini/HP_1.gif" alt="Immagine punto 1">
+            <p>This moment sets the stage for the entire series, revealing the tragic backstory of Harry Potter's parents' death at the hands of Voldemort and Harry's survival as the only known person to survive the Killing Curse.
+            </p>
+        </div>
+        <div id="point2" class="point">
+            <h3>Hagrid's Visit</h3>
+            <img src="immagini/HP_2_01.gif" alt="Immagine punto 2">
+            <p>Hagrid's arrival at the Dursleys' home is a pivotal moment for Harry as it marks his introduction to the wizarding world. Hagrid's revelation about Harry's true identity and his delivery of the Hogwarts acceptance letter ignite Harry's journey into the magical realm.
+            </p>
+        </div>
+        <div id="point3" class="point">
+            <h3>Diagon Alley</h3>
+            <img src="immagini/HP_3.gif" alt="Immagine punto 3">
+            <p>Harry's exploration of Diagon Alley is a mesmerizing experience for both him and the readers. It's the first glimpse into the enchanting world of wizards and witches, complete with magical shops like Ollivanders, Gringotts, and the Leaky Cauldron.
+                .</p>
+        </div>
+        <div id="point4" class="point">
+            <h3>Platform 9¾</h3>
+            <img src="immagini/HP_4.gif" alt="Immagine punto 3">
+            <p>Boarding the Hogwarts Express from Platform 9¾ is Harry's first taste of magical transportation. It's a moment filled with excitement and wonder as he embarks on his journey to Hogwarts School of Witchcraft and Wizardry.
+            </p>
+        </div>
+        <div id="point5" class="point">
+            <h3>Sorting Hat Ceremony</h3>
+            <img src="immagini/HP_5.gif" alt="Immagine punto 3">
+            <p>The Sorting Hat ceremony is a significant moment for Harry as he is officially sorted into Gryffindor House. This event not only determines his Hogwarts house but also introduces him to lifelong friends Ron and Hermione.
+            </p>
+        </div>
+        <div id="point6" class="point">
+            <h3>The Troll Incident</h3>
+            <img src="immagini/HP_6.gif" alt="Immagine punto 3">
+            <p>The encounter with the mountain troll in the girls' bathroom is the trio's first adventure together. It showcases their bravery, loyalty, and budding friendship as they work together to overcome a dangerous situation.
+            </p>
+        </div>
+        <div id="point7" class="point">
+            <h3>The Philosopher's Stone</h3>
+            <img src="immagini/HP_7.gif" alt="Immagine punto 3">
+            <p>The mystery surrounding the Philosopher's Stone serves as a central plot point in the story. Its discovery and the subsequent quest to protect it from Voldemort's clutches drive much of the narrative tension and excitement.
+            </p>
+        </div>
+        <div id="point8" class="point">
+            <h3>Wizard's Chess</h3>
+            <img src="immagini/HP_8.gif" alt="Immagine punto 3">
+            <p>The game of wizard's chess is a thrilling and pivotal moment in the story. Ron's sacrifice highlights the theme of selflessness and underscores the strength of friendship as Harry and Hermione continue their quest to stop Voldemort.
+            </p>
+        </div>
+        <div id="point9" class="point">
+            <h3>Confrontation with Voldemort</h3>
+            <img src="immagini/HP_9.gif" alt="Immagine punto 3">
+            <p>The climactic showdown in the underground chamber is a moment of intense danger and bravery for Harry. His confrontation with Voldemort showcases his courage and determination to thwart the Dark Lord's evil plans.
+            </p>
+        </div>
+        <div id="point10" class="point">
+            <h3>House Cup Victory</h3>
+            <img src="immagini/HP_10.gif" alt="Immagine punto 3">
+            <p>Gryffindor House's unexpected victory of the House Cup is a triumphant conclusion to the school year. It celebrates the courage and heroism of Harry and his friends, solidifying their place as beloved characters in the Hogwarts community.</p>
+        </div>
+        <!-- Aggiungi gli altri punti salienti -->
+    </div>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animated Dog</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dog">
+        <div class="ears">
+            <div class="ear left"></div>
+            <div class="ear right"></div>
+        </div>
+        <div class="eyes">
+            <div class="eye left">
+                <div class="pupil"></div>
+                <div class="eyelid"></div>
+            </div>
+            <div class="eye right">
+                <div class="pupil"></div>
+                <div class="eyelid"></div>
+            </div>
+        </div>
+        <div class="nose"></div>
+        <div class="mouth"></div>
+    </div>
+</body>
+</html>
+
+
+    <script>
+document.addEventListener("DOMContentLoaded", function() {
+    const pupils = document.querySelectorAll(".pupil");
+    const eyelids = document.querySelectorAll(".eyelid");
+
+    document.addEventListener("mousemove", function(event) {
+        pupils.forEach(function(pupil) {
+            const rect = pupil.parentElement.getBoundingClientRect();
+            const eyeCenterX = rect.left + rect.width / 2;
+            const eyeCenterY = rect.top + rect.height / 2;
+
+            const mouseX = event.clientX;
+            const mouseY = event.clientY;
+
+            const deltaX = mouseX - eyeCenterX;
+            const deltaY = mouseY - eyeCenterY;
+
+            const angle = Math.atan2(deltaY, deltaX);
+            const distance = Math.min(8, Math.sqrt(deltaX * deltaX + deltaY * deltaY)); // Limita la distanza a 8px dal centro
+
+            const offsetX = Math.cos(angle) * distance;
+            const offsetY = Math.sin(angle) * distance;
+
+            pupil.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+        });
+    });
+
+    function closeEyes() {
+        eyelids.forEach(function(eyelid) {
+            eyelid.style.display = "block";
+        });
+        setTimeout(openEyes, 300);
+    }
+
+    function openEyes() {
+        eyelids.forEach(function(eyelid) {
+            eyelid.style.display = "none";
+        });
+        setTimeout(closeEyes, 2000);
+    }
+
+    closeEyes(); // Inizia con gli occhi chiusi
+});
+
+    </script>
+</body>
+</html>
