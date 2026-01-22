@@ -1,0 +1,1035 @@
+:root {
+    /* ------------------------- */
+    /* PALETTE (Monocromatica + Accento) */
+    /* ------------------------- */
+    /* Sfondi */
+    --c-bg-main: #f8f8f8;
+    --c-bg-panel: #ffffff;
+    --c-bg-inset: #f0f0f0; /* Per sfondi interni come code blocks o stats */
+
+    /* Testo */
+    --c-text-primary: #1a1a1a;
+    --c-text-secondary: #666666;
+    --c-text-muted: #999999;
+
+    /* Bordi e Divisori */
+    --c-border: #e0e0e0;
+    --c-border-strong: #cccccc;
+
+    /* Colore d'accento */
+    --c-accent: #007AFF; /* Blu elettrico, pulito e tecnico */
+    --c-accent-hover: #0056b3;
+    --c-accent-text: #ffffff;
+
+    /* Evidenziazione (es. selezione nodo) */
+    --c-selection-glow: #f1ea83;
+
+    /* ------------------------- */
+    /* TIPOGRAFIA                */
+    /* ------------------------- */
+    --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-mono: 'Roboto Mono', 'Space Mono', monospace;
+
+    /* Dimensioni (Scala tipografica) */
+    --fs-giant: 4.5rem;   /* 72px - Per metriche principali */
+    --fs-h1: 1.75rem;     /* 28px */
+    --fs-h2: 1.25rem;     /* 20px */
+    --fs-base: 0.9375rem; /* 15px - Testo principale */
+    --fs-small: 0.8125rem;/* 13px - Testo secondario */
+    --fs-tiny: 0.75rem;   /* 12px - Legende, etichette */
+
+    /* Pesi */
+    --fw-regular: 400;
+    --fw-medium: 500;
+    --fw-bold: 700;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    background: #fafafa;
+    color: #222;
+}
+
+/* Layout: grafico a sinistra, pannello info a destra */
+#graph-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    /* Rimosso border-right perché ora sono isole */
+}
+
+.panel-card {
+    background: var(--c-bg-panel);
+    border: 1px solid var(--c-border);
+    border-radius: 0; /* Spigoli vivi per look tecnico */
+    box-shadow: none; /* Flat design */
+}
+
+#info-panel {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    bottom: 20px;
+    width: 360px;
+    /* Larghezza fissa */
+
+    /* Il container è trasparente, contiene le cards */
+    background: transparent;
+    pointer-events: none;
+    /* Lascia passare i click negli spazi vuoti */
+
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    /* Spazio tra Legenda e Dettagli */
+
+    transition: transform 320ms cubic-bezier(.2, .9, .2, 1), opacity 240ms ease;
+    z-index: 1000;
+}
+
+#info-panel.collapsed {
+    transform: translateX(calc(100% + 40px));
+    opacity: 0;
+}
+
+#info-panel h1 {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+#info-panel h2 {
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+    margin-top: 4px;
+}
+
+#info-panel .pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 6px;
+    border-radius: 2px; /* Square technical look */
+    font-family: var(--font-mono);
+    font-size: 10px;
+    background: transparent;
+    border: 1px solid var(--c-border-strong);
+    color: var(--c-text-secondary);
+    margin-right: 4px;
+    margin-bottom: 4px;
+}
+
+#info-panel .section-title {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: var(--fw-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--c-text-muted);
+    margin-bottom: 12px;
+    display: block;
+}
+
+#info-panel p {
+    font-size: 13px;
+    line-height: 1.4;
+    white-space: pre-wrap;
+}
+
+#info-placeholder {
+    font-size: 13px;
+    color: #777;
+}
+
+svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Stili per il grafo */
+.link {
+    transition: opacity 0.5s;
+}
+
+.node {
+    cursor: pointer;
+    transition: opacity 0.5s;
+}
+
+@keyframes selection-rotate {
+    from { stroke-dashoffset: 24; } /* Multiplo di 8 (4+4) per un loop perfetto */
+    to { stroke-dashoffset: 0; }
+}
+
+.selection-ring {
+    fill: none;
+    stroke: var(--c-accent);
+    stroke-width: 1.0px;
+    stroke-dasharray: 8, 4;
+    pointer-events: none;
+    animation: selection-rotate 1s linear infinite;
+    transition: opacity 0.3s;
+    z-index: 10;
+}
+
+.node-label {
+    font-size: 10px;
+    pointer-events: none;
+    fill: #444;
+    transition: opacity 0.5s;
+}
+
+#node-title {
+    font-family: var(--font-mono);
+    font-size: var(--fs-h2);
+    font-weight: var(--fw-bold);
+    color: var(--c-text-primary);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+}
+
+#node-text {
+    font-family: var(--font-sans);
+    font-size: var(--fs-base);
+    line-height: 1.5;
+    color: var(--c-text-secondary);
+}
+
+#node-value {
+    font-family: var(--font-mono);
+    font-size: var(--fs-small);
+    color: var(--c-text-primary);
+    white-space: pre-wrap;
+    background: transparent;
+    padding: 0;
+    border: none;
+}
+
+/* Pillole tipologia */
+.pill {
+    display: inline-flex;
+    padding: 4px 10px;
+    border-radius: 2px;
+    background: transparent;
+    border: 1px solid var(--c-border-strong);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: var(--fw-medium);
+    margin-right: 6px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+
+/* --- STILE PER LE AREE CLUSTER (HULLS) --- */
+.hull {
+    stroke-width: 1px;
+    stroke-linejoin: round;
+    cursor: pointer;
+    transition: opacity 0.5s;
+}
+
+/* ----------------------------------------------------- */
+
+/* Tooltip */
+.tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--c-text-primary);
+    color: var(--c-bg-panel);
+    padding: 8px 12px;
+    border-radius: 0;
+    border: 1px solid var(--c-border);
+    font-size: 11px;
+    max-width: 260px;
+    line-height: 1.3;
+    box-shadow: none;
+}
+
+.entity-perm-label text {
+    font-size: 12px;
+    font-weight: 500;
+    fill: #111;
+    pointer-events: none;
+}
+
+#legend-card {
+    pointer-events: auto;
+    /* Riabilita click */
+    padding: 16px;
+    flex-shrink: 0;
+    /* Non si rimpicciolisce */
+}
+
+#details-card {
+    pointer-events: auto;
+    padding: 0; /* Reset padding per gestire il layout interno */
+    flex-grow: 1;
+    /* Occupa lo spazio rimanente in basso */
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    overflow-y: auto;
+
+    /* Nascosto di default */
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+    transition: opacity 0.3s, transform 0.3s;
+}
+
+#details-card.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+/* --- DETAILS HEADER (User Profile) --- */
+#details-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Allineamento a sinistra tecnico */
+    text-align: left;
+    padding: 20px;
+    border-bottom: 1px solid var(--c-border);
+    background: var(--c-bg-panel);
+}
+
+#user-profile-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+    width: 100%;
+}
+
+#user-avatar {
+    width: 32px;
+    height: 32px;
+    background: var(--c-bg-inset);
+    border: 1px solid var(--c-border);
+    border-radius: 0; /* Square avatar */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--c-text-primary);
+}
+
+#user-name {
+    font-family: var(--font-mono);
+    font-size: var(--fs-base);
+    font-weight: var(--fw-medium);
+    color: var(--c-text-primary);
+}
+
+/* Content Container (il div centrale) */
+#details-card > div:nth-child(2) {
+    padding: 20px;
+}
+
+#details-stats {
+    margin-top: auto;
+    padding: 16px 20px;
+    background: var(--c-bg-inset);
+    border-top: 1px solid var(--c-border);
+}
+
+/* Tipografia Dettagli (Richiesta: testo più grande) */
+#details-card .section-title {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: var(--fw-bold);
+    color: var(--c-text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+/* legenda */
+#legend-title {
+    font-family: var(--font-mono);
+    font-size: var(--fs-h2);
+    font-weight: var(--fw-bold);
+    text-transform: uppercase;
+    letter-spacing: auto;
+    margin: 0 0 12px 0;
+    color: var(--c-text-primary);
+}
+
+#legend-card {
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--c-border);
+    color: var(--c-text-primary);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+    font-family: var(--font-mono);
+    font-size: var(--fs-tiny);
+    color: var(--c-text-secondary);
+}
+
+.legend-symbol {
+    width: 16px;
+    height: 16px;
+}
+
+/* Tutorial sidebar styles */
+#tutorial-sidebar {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    bottom: auto;
+    /* Rimosso l'ancoraggio al fondo */
+
+    width: 360px;
+    height: 65vh;
+    /* Circa il 60% dell'altezza schermo */
+    min-height: 550px;
+    /* Altezza minima per garantire leggibilità */
+
+    background: var(--c-bg-panel);
+    border: 1px solid var(--c-border-strong);
+    box-shadow: none;
+
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    /* gap ridotto leggermente per bilanciare lo spazio */
+    gap: 16px;
+    transition: transform 320ms cubic-bezier(.2, .9, .2, 1), opacity 240ms ease;
+}
+
+.tutorial-closed {
+    transform: translateX(calc(-100% - 40px));
+    /* Sposta fuori schermo + margine */
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Header del tutorial: Titolo a sx, Skip a dx */
+#tutorial-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--c-border);
+    padding-bottom: 12px;
+}
+
+#tutorial-heading {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: var(--fw-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--c-text-primary);
+}
+
+#tutorial-skip {
+    background: none;
+    border: none;
+    color: var(--c-text-muted);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    text-transform: uppercase;
+    padding: 0;
+}
+
+#tutorial-skip:hover {
+    color: var(--c-text-primary);
+    text-decoration: underline;
+}
+
+#tutorial-content h2 {
+    margin-bottom: 12px;
+    font-family: var(--font-mono);
+    font-size: var(--fs-h1);
+    font-weight: var(--fw-bold);
+    color: var(--c-text-primary);
+}
+
+#tutorial-content p {
+    margin-bottom: 12px;
+    font-family: var(--font-sans);
+    font-size: var(--fs-base);
+    line-height: 1.4;
+    color: var(--c-text-secondary);
+}
+
+.tutorial-visual {
+    display: flex;
+    justify-content: center;
+    margin-top: 6px;
+}
+
+#tutorial-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: auto;
+    /* Spinge il footer in basso */
+
+    /* NUOVO: Linea grigia di separazione */
+    border-top: 1px solid var(--c-border);
+    padding-top: 16px;
+}
+
+#tutorial-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tut-btn {
+    padding: 8px 16px;
+    border-radius: 2px; /* Square technical look */
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+}
+
+#tutorial-next {
+    background: var(--c-text-primary);
+    color: var(--c-bg-panel);
+    border: 1px solid var(--c-text-primary);
+}
+
+#tutorial-next:hover {
+    background: var(--c-accent);
+    border-color: var(--c-accent);
+}
+
+#tutorial-back {
+    background: transparent;
+    color: var(--c-text-primary);
+    border: 1px solid var(--c-border-strong);
+}
+
+#tutorial-back:hover:not(:disabled) {
+    background: var(--c-bg-inset);
+    border-color: var(--c-text-primary);
+}
+
+#tutorial-back:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+#tutorial-stepper {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.step-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 0; /* Square dots */
+    background: var(--c-border-strong);
+    transition: background 0.25s;
+}
+
+.step-dot.active {
+    background: var(--c-accent);
+}
+
+/* Pulsante per riaprire il tutorial */
+#tutorial-toggle {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    z-index: 9000;
+    padding: 8px 12px;
+    font-family: var(--font-mono);
+    font-size: var(--fs-tiny);
+    text-transform: uppercase;
+    border-radius: 2px;
+    border: 1px solid var(--c-border-strong);
+    background: var(--c-bg-panel);
+    color: var(--c-text-primary);
+    cursor: pointer;
+    display: none;
+    transition: all 0.2s;
+}
+
+#tutorial-toggle:hover {
+    border-color: var(--c-accent);
+    color: var(--c-accent);
+}
+
+/* --- CONTROLS WRAPPER (Search + Depth Nav) --- */
+#controls-wrapper {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch; /* Forza la stessa larghezza per i figli */
+    gap: 8px; /* Spazio tra search e nav */
+    z-index: 8000;
+    pointer-events: none; /* Permette di cliccare il grafo tra i due elementi */
+}
+
+#controls-wrapper > * {
+    pointer-events: auto; /* Riabilita i click sugli elementi interni */
+}
+
+/* --- STILI BARRA DI NAVIGAZIONE (LIVELI) --- */
+#depth-nav {
+    background: var(--c-bg-panel);
+    border: 1px solid var(--c-border-strong);
+    border-radius: 0;
+    display: flex;
+    padding: 4px;
+    gap: 4px;
+    box-shadow: none;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+/* Stato nascosto della nav bar (durante il tutorial) */
+#depth-nav.nav-hidden {
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+}
+
+/* --- TIMELINE PLAYER --- */
+#timeline-panel {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 8000;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    width: 400px;
+    background: var(--c-bg-panel);
+    border: 1px solid var(--c-border-strong);
+    border-radius: 0;
+    box-shadow: none;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.timeline-title {
+    font-family: var(--font-mono);
+    font-size: var(--fs-tiny);
+    font-weight: var(--fw-bold);
+    color: var(--c-text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+    text-align: center;
+}
+
+.timeline-info {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    cursor: help;
+    color: var(--c-text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 15px;
+    height: 15px;
+}
+
+.timeline-info:hover {
+    color: var(--c-text-primary);
+}
+
+.timeline-tooltip-text {
+    visibility: hidden;
+    width: 180px;
+    background-color: var(--c-text-primary);
+    color: var(--c-bg-panel);
+    text-align: center;
+    border-radius: 0;
+    padding: 8px;
+    position: absolute;
+    z-index: 1000;
+    top: 140%; /* Spostato sotto l'icona per evitare il margine superiore */
+    left: 50%;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    font-weight: 400;
+    pointer-events: none;
+    line-height: 1.3;
+    box-shadow: none;
+    border: 1px solid var(--c-border);
+}
+
+.timeline-info:hover .timeline-tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Stato nascosto (durante tutorial) */
+#timeline-panel.nav-hidden {
+    opacity: 0;
+    transform: translate(-50%, -20px);
+    pointer-events: none;
+}
+
+.time-btn {
+    background: transparent;
+    color: var(--c-text-primary);
+    border: 1px solid var(--c-border-strong);
+    width: 26px;
+    height: 26px;
+    border-radius: 2px; /* Square technical look */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    transition: background 0.2s;
+}
+
+.time-btn svg {
+    width: 16px !important;
+    height: 16px !important;
+}
+
+#play-btn svg path[d="M5 3l14 9-14 9V3z"] {
+    margin-left: 2px;
+}
+
+.time-btn:hover {
+    background: var(--c-bg-inset);
+    border-color: var(--c-accent);
+    color: var(--c-accent);
+}
+
+.time-slider-wrapper {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+}
+
+#time-date {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: var(--fw-bold);
+    color: var(--c-text-primary);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+    text-align: center;
+}
+
+#timeline-chart {
+    width: 100%;
+    height: 40px; /* Più alto per vedere meglio i dettagli */
+    margin-bottom: 0px; /* Sovrapposizione per integrarlo con lo slider */
+    pointer-events: none;
+    position: relative;
+    z-index: 1;
+}
+
+#time-slider {
+    -webkit-appearance: none; /* Rimuove lo stile di default */
+    appearance: none;
+    width: 100%;
+    height: 2px; /* Track ancora più sottile e tecnico */
+    background: var(--c-border);
+    border-radius: 0;
+    outline: none;
+    cursor: pointer;
+    margin: 0;
+    position: relative;
+    z-index: 3;
+}
+
+#timeline-cursor {
+    position: absolute;
+    top: 25px; /* Start below the date label */
+    bottom: 6px; /* End at the center of the slider thumb */
+    width: 1px;
+    background-color: var(--c-border-strong);
+    pointer-events: none;
+    z-index: 2; /* Between chart (1) and slider (3) */
+    display: none;
+}
+
+/* Stile del pallino (Thumb) per Webkit (Chrome, Safari, Edge) */
+#time-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 0; /* Square thumb */
+    background: var(--c-accent);
+    cursor: pointer;
+    border: none;
+}
+
+/* Stile del pallino (Thumb) per Firefox */
+#time-slider::-moz-range-thumb {
+    width: 10px;
+    height: 10px;
+    border-radius: 0;
+    background: var(--c-accent);
+    cursor: pointer;
+    border: none;
+    box-shadow: none;
+}
+
+.nav-btn {
+    padding: 6px 12px;
+    border-radius: 2px;
+    font-family: var(--font-mono);
+    font-size: var(--fs-small);
+    font-weight: var(--fw-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--c-text-secondary);
+    background: transparent;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.nav-btn:hover {
+    background: var(--c-bg-inset);
+    color: var(--c-text-primary);
+}
+
+.nav-btn.active {
+    background: var(--c-accent);
+    color: var(--c-accent-text);
+    border-color: var(--c-border);
+    box-shadow: none;
+}
+
+/* --- SEARCH BAR --- */
+#search-panel {
+    display: flex;
+    align-items: center;
+    background: var(--c-bg-panel);
+    border: 1px solid var(--c-border-strong);
+    border-radius: 0;
+    padding: 0 12px;
+    height: 36px; /* Altezza simile alla navbar dei filtri */
+    box-shadow: none;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+#search-panel svg {
+    width: 14px;
+    height: 14px;
+    margin-right: 12px !important; /* Override inline style */
+    flex-shrink: 0;
+    stroke: var(--c-text-muted);
+}
+
+#search-panel.nav-hidden {
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+}
+
+#search-input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-family: var(--font-mono);
+    font-size: var(--fs-small);
+    width: 100%;
+    height: 100%;
+    color: var(--c-text-primary);
+    font-weight: var(--fw-medium);
+}
+
+#search-input::placeholder {
+    color: var(--c-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* --- MINIMAP --- */
+#minimap-container {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 200px;
+    height: 200px;
+    background: var(--c-bg-panel);
+    border: 1px solid var(--c-border-strong);
+    border-radius: 0;
+    box-shadow: none;
+    z-index: 7900;
+    overflow: hidden;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+/* Etichetta tecnica per la minimappa */
+#minimap-container::before {
+    content: "MINIMAP";
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: var(--c-bg-inset);
+    padding: 2px 6px;
+    font-family: var(--font-mono);
+    font-size: var(--fs-tiny);
+    color: var(--c-text-secondary);
+    border-bottom: 1px solid var(--c-border);
+    border-right: 1px solid var(--c-border);
+    z-index: 10;
+}
+
+#minimap-container.nav-hidden {
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+}
+
+/* --- RESET VIEW BUTTON --- */
+#reset-view-container,
+#zoom-out-container,
+#zoom-in-container,
+#export-view-container {
+    position: fixed;
+    left: 230px; /* 20 (left) + 200 (width minimap) + 10 (gap) */
+    z-index: 7900;
+    display: flex;
+    align-items: center;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+#reset-view-container { bottom: 20px; }
+#zoom-out-container { bottom: 66px; }
+#zoom-in-container { bottom: 112px; }
+#export-view-container { bottom: 158px; }
+
+#reset-view-container.nav-hidden,
+#zoom-out-container.nav-hidden,
+#zoom-in-container.nav-hidden,
+#export-view-container.nav-hidden {
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+}
+
+#export-menu {
+    display: none;
+    position: absolute;
+    bottom: 0;
+    left: 46px; /* 36px button + 10px gap */
+    background: var(--c-bg-panel);
+    border: 1px solid var(--c-border-strong);
+    flex-direction: column;
+    min-width: 44px;
+    z-index: 8001;
+}
+
+#export-menu.active {
+    display: flex;
+}
+
+.export-opt {
+    padding: 6px 0;
+    font-family: var(--font-mono);
+    font-size: var(--fs-small);
+    border: none;
+    background: none;
+    cursor: pointer;
+    text-align: center;
+    color: var(--c-text-primary);
+    border-bottom: 1px solid var(--c-border);
+}
+
+.export-opt:last-child { border-bottom: none; }
+
+.export-opt:hover {
+    background: var(--c-bg-inset);
+    color: var(--c-accent);
+}
+
+#reset-view-btn,
+#export-view-btn,
+#zoom-in-btn,
+#zoom-out-btn {
+    width: 36px;
+    height: 36px;
+    background: var(--c-bg-panel);
+}
+
+.reset-tooltip {
+    visibility: hidden;
+    position: absolute;
+    left: 46px;
+    white-space: nowrap;
+    background: var(--c-text-primary);
+    color: var(--c-bg-panel);
+    padding: 4px 8px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    border: 1px solid var(--c-border);
+}
+
+#reset-view-btn:hover + .reset-tooltip,
+#export-view-btn:hover + .reset-tooltip,
+#zoom-in-btn:hover + .reset-tooltip,
+#zoom-out-btn:hover + .reset-tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
+.minimap-viewport {
+    fill: rgba(63, 137, 197, 0.048);
+    stroke: #3f88c5;
+    stroke-width: 0.5px; /* Sarà scalato dal viewBox, quindi valore alto */
+}
+
+/* --- WIKIPEDIA BUTTON --- */
+.wiki-btn {
+    display: inline-block;
+    padding: 8px 12px;
+    background-color: #f1f5f9;
+    color: #334155;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid #cbd5e1;
+    transition: all 0.2s ease;
+}
+
+.wiki-btn:hover {
+    background-color: #e2e8f0;
+    color: #0f172a;
+    border-color: #94a3b8;
+}

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Knowledge Graph Wireframe</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div id="graph-container">
+
+
+        
+        <!-- Tutorial Sidebar -->
+        <div id="tutorial-sidebar">
+            <div id="tutorial-header">
+                <div id="tutorial-heading">Tutorial</div>
+                <button id="tutorial-skip">Skip Tutorial</button>
+            </div>
+
+            <div id="tutorial-content"></div>
+
+            <div id="tutorial-footer">
+                <div id="tutorial-stepper"></div>
+                <div id="tutorial-controls">
+                    <button id="tutorial-back" class="tut-btn">← Back</button>
+                    <button id="tutorial-next" class="tut-btn">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTTOM CONTROLS (Search + Nav) -->
+        <div id="controls-wrapper">
+            <!-- SEARCH BAR -->
+            <div id="search-panel" class="nav-hidden">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="search-input" placeholder="Search topics or keywords...">
+            </div>
+
+            <!-- NavBar -->
+            <div id="depth-nav" class="nav-hidden">
+                <button class="nav-btn" onclick="updateGraphDepth(1)">1. Main Positions</button>
+                <button class="nav-btn" onclick="updateGraphDepth(2)">2. Arguments</button>
+                <button class="nav-btn active" onclick="updateGraphDepth(3)">3. Full Context</button>
+            </div>
+        </div>
+
+        <!-- TIMELINE PLAYER  -->
+        <div id="timeline-panel" class="nav-hidden">
+            <div class="timeline-info">
+                <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                <div class="timeline-tooltip-text">Observe how the discussion evolves over time.</div>
+            </div>
+            <button id="play-btn" class="time-btn">
+                <svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor">
+                    <path d="M5 3l14 9-14 9V3z"></path>
+                </svg>
+            </button>
+            <div class="time-slider-wrapper">
+                <div class="timeline-title">Timeline</div>
+                <span id="time-date">Start</span>
+                <div id="timeline-chart"></div>
+                <input type="range" id="time-slider" min="0" max="100" value="100" step="1">
+            </div>
+        </div>
+
+        <!-- SEARCH BAR -->
+        <div id="search-panel" class="nav-hidden">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="search-input" placeholder="Search topics or keywords...">
+        </div>
+
+        <!-- MINIMAP -->
+        <div id="minimap-container" class="nav-hidden">
+            <svg id="minimap"></svg>
+        </div>
+
+        <!-- EXPORT VIEW BUTTON -->
+        <div id="export-view-container" class="nav-hidden">
+            <div id="export-menu">
+                <button class="export-opt" onclick="exportGraph('png')">PNG</button>
+                <button class="export-opt" onclick="exportGraph('svg')">SVG</button>
+            </div>
+            <button id="export-view-btn" class="time-btn">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+            </button>
+            <div class="reset-tooltip">Export View</div>
+        </div>
+
+        <!-- ZOOM IN BUTTON -->
+        <div id="zoom-in-container" class="nav-hidden">
+            <button id="zoom-in-btn" class="time-btn">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+            </button>
+            <div class="reset-tooltip">Zoom In</div>
+        </div>
+
+        <!-- ZOOM OUT BUTTON -->
+        <div id="zoom-out-container" class="nav-hidden">
+            <button id="zoom-out-btn" class="time-btn">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+            </button>
+            <div class="reset-tooltip">Zoom Out</div>
+        </div>
+
+        <!-- RESET VIEW BUTTON -->
+        <div id="reset-view-container" class="nav-hidden">
+            <button id="reset-view-btn" class="time-btn">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 3h6v6M9 21H3v-6M21 15v6h-6M3 9V3h6M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                </svg>
+            </button>
+            <div class="reset-tooltip">Fit to Screen</div>
+        </div>
+
+        <button id="tutorial-toggle">Open Tutorial</button>
+
+        <svg id="graph"></svg>
+        <div id="tooltip" class="tooltip" style="opacity: 0;"></div>
+    </div>
+
+    <aside id="info-panel" class="collapsed">
+        
+
+        <!-- LEGENDA  -->
+        <div id="legend-card" class="panel-card">
+            <div id="legend-title">Legend</div>
+            <div id="legend"></div>
+        </div>
+
+        <!-- DETAILS -->
+        <div id="details-card" class="panel-card">
+            <div id="details-header">
+                <div id="user-profile-row">
+                    <div id="user-avatar"></div>
+                    <div id="user-name"></div>
+                </div>
+                <div id="node-types"></div>
+            </div>
+            <div>
+                <div class="section-title">Content</div>
+                <div id="node-title"></div>
+                <div id="node-text"></div>
+            </div>
+            <div id="details-stats"> 
+                <div class="section-title">Stats</div>
+                <div id="node-value"></div>
+            </div>
+        </div>
+    </aside>
+
+    <script src="js/script.js"></script>
+</body>
+
+</html>
