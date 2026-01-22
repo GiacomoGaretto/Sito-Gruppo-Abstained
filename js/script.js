@@ -1111,6 +1111,12 @@ globalClusterMembers.forEach((members, clusterId) => {
 
         // Rimuovi selezione visiva
         nodeGroup.selectAll(".node").classed("selected", false);
+
+        // Reset Toggles
+        const tContested = document.getElementById("toggle-contested");
+        const tLone = document.getElementById("toggle-lone");
+        if (tContested) tContested.checked = false;
+        if (tLone) tLone.checked = false;
     });
 
     let currentSelectedNodeId = null; // Gestione race condition per richieste asincrone
@@ -1630,6 +1636,8 @@ globalClusterMembers.forEach((members, clusterId) => {
         if (searchPanel) searchPanel.classList.remove('nav-hidden');
         const minimapContainer = document.getElementById("minimap-container");
         if (minimapContainer) minimapContainer.classList.remove('nav-hidden');
+        const suggestedViews = document.getElementById("suggested-views-container");
+        if (suggestedViews) suggestedViews.classList.remove('nav-hidden');
         const resetViewContainer = document.getElementById("reset-view-container");
         if (resetViewContainer) resetViewContainer.classList.remove('nav-hidden');
         const exportViewContainer = document.getElementById("export-view-container");
@@ -1878,6 +1886,8 @@ globalClusterMembers.forEach((members, clusterId) => {
         if (searchPanel) searchPanel.classList.add('nav-hidden'); // Nascondi search
         const minimapContainer = document.getElementById("minimap-container");
         if (minimapContainer) minimapContainer.classList.add('nav-hidden'); // Nascondi minimap
+        const suggestedViews = document.getElementById("suggested-views-container");
+        if (suggestedViews) suggestedViews.classList.add('nav-hidden'); // Nascondi suggested views
         const resetViewContainer = document.getElementById("reset-view-container");
         if (resetViewContainer) resetViewContainer.classList.add('nav-hidden'); // Nascondi reset view
         const exportViewContainer = document.getElementById("export-view-container");
@@ -2055,6 +2065,12 @@ globalClusterMembers.forEach((members, clusterId) => {
                 resetHighlight();
                 return;
             }
+            
+            // Uncheck toggles if searching
+            const tContested = document.getElementById("toggle-contested");
+            const tLone = document.getElementById("toggle-lone");
+            if (tContested) tContested.checked = false;
+            if (tLone) tLone.checked = false;
 
             const filterFn = (d) => {
                 const title = (d.detail__title || "").toLowerCase();
@@ -2068,6 +2084,90 @@ globalClusterMembers.forEach((members, clusterId) => {
 
             highlightNodes(filterFn);
         });
+    }
+
+    // --- SUGGESTED VIEWS LOGIC ---
+    const toggleContested = document.getElementById("toggle-contested");
+    const toggleLone = document.getElementById("toggle-lone");
+
+    function handleSuggestedView(viewType, isActive) {
+        // Mutual exclusivity: Uncheck the other toggle
+        if (viewType === 'contested' && isActive) {
+            if (toggleLone) toggleLone.checked = false;
+        } else if (viewType === 'lone' && isActive) {
+            if (toggleContested) toggleContested.checked = false;
+        }
+
+        if (!isActive) {
+            resetHighlight();
+            return;
+        }
+
+        let targetIds = new Set();
+
+        if (viewType === 'contested') {
+            // Find Position with max arguments (INFAVOR/AGAINST)
+            let maxArgs = -1;
+            let bestNode = null;
+
+            nodes.forEach(n => {
+                if (titleAccessorGlobal(n) === "POSITION") {
+                    let count = 0;
+                    globalEdges.forEach(e => {
+                        const s = e.source.id || e.source;
+                        const t = e.target.id || e.target;
+                        const neighborId = (s === n.id) ? t : ((t === n.id) ? s : null);
+                        
+                        if (neighborId) {
+                            const neighbor = nodeById.get(neighborId);
+                            const type = titleAccessorGlobal(neighbor);
+                            if (type === "INFAVOR" || type === "AGAINST") count++;
+                        }
+                    });
+
+                    if (count > maxArgs) {
+                        maxArgs = count;
+                        bestNode = n;
+                    }
+                }
+            });
+
+            if (bestNode) {
+                targetIds.add(bestNode.id);
+                // Highlight connected arguments as well
+                globalEdges.forEach(e => {
+                    const s = e.source.id || e.source;
+                    const t = e.target.id || e.target;
+                    if (s === bestNode.id || t === bestNode.id) {
+                         targetIds.add(s);
+                         targetIds.add(t);
+                    }
+                });
+            }
+
+        } else if (viewType === 'lone') {
+             // Find Positions with NO arguments (only Subject connection)
+             nodes.forEach(n => {
+                if (titleAccessorGlobal(n) === "POSITION") {
+                    // Check structural degree (connections to non-entities)
+                    // If degree is 1, it's only connected to Subject (since it must be connected to something)
+                    if (structuralDegree.get(n.id) <= 1) {
+                        targetIds.add(n.id);
+                    }
+                }
+            });
+        }
+
+        if (targetIds.size > 0) {
+            highlightNodes(d => targetIds.has(d.id));
+        }
+    }
+
+    if (toggleContested) {
+        toggleContested.addEventListener("change", (e) => handleSuggestedView('contested', e.target.checked));
+    }
+    if (toggleLone) {
+        toggleLone.addEventListener("change", (e) => handleSuggestedView('lone', e.target.checked));
     }
 
     updateTutorial();
